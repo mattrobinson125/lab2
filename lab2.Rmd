@@ -138,6 +138,7 @@ ggplot(stateinfo, aes(x = n, y = state)) +
         scale_x_continuous(expand=c(0,0))
 ```
 
+
 ###Circumstances of Death
 
 #####Was the victim armed?
@@ -190,3 +191,31 @@ ggplot(data = fatalshootings, aes(y = manner_of_death)) +
         labs(y = NULL, x = "Number of deaths")
 ```
 
+
+
+###Follow Up
+
+To enhance the article, we added some more detail to the location graph to have the data represent death per 1 million residents. The population data was retrieved from the United States Census Bureau here <https://www.census.gov/popest/data/datasets.html>. We do some importing, then merge data to perform the calculation, and then plot the new variable, dPerCapita. As you can see, California proportionally does not have the most deaths, but rather New Mexico. Also, Wyoming and Arkansas, who were not in the original visualization are second and third in deaths per million.
+
+#####Death per Capita Breakdown
+```{r message=FALSE}
+stateinfo <- fatalshootings %>% group_by(state) %>% summarise(n = n()) %>% 
+  arrange(desc(n)) %>% 
+  mutate(state = factor(state, levels = rev(unique(state))))
+
+census <- read.csv('./NST-EST2015-alldata.csv', stringsAsFactors = FALSE)
+census <- transform(census, state = state.abb[match(census$NAME,state.name)])
+stateinfo <- merge(stateinfo,census,by="state")
+stateinfo$dPerCap <- stateinfo$n / (stateinfo$POPESTIMATE2015 / 1000000)
+stateinfo <- stateinfo %>% arrange(desc(dPerCap)) %>% top_n(15) 
+
+ggplot(stateinfo, aes(x = dPerCap, y = state)) +
+  geom_barh(stat="identity", aes(fill = dPerCap)) +
+  geom_text(aes(x = 20, y = state, label=as.character(state)), color="white", size=4) +
+  labs(y = NULL, x = "Number of deaths per 1M people") +
+  scale_fill_gradient(low = "royalblue3", high = "navyblue") +
+  theme_minimal(base_size = 13) +
+  theme(legend.position = "none") +
+  scale_x_continuous(expand=c(0,0))
+
+```
