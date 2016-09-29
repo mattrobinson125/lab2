@@ -1,5 +1,5 @@
 ---
-title: "Lab2: Reproduce An Analysis!"
+title: "Lab 2: Use of Deadly Force by Police"
 author: "Matt Robinson & Vincent Lee"
 date: "9/26/2016"
 output: html_document
@@ -12,15 +12,11 @@ The following lines of code import necessary libraries to execute this code:
 ### Preparation / Imports
 ``` {r}
 library(devtools)
-library(flexdashboard)
-library(lubridate)
-library(dplyr)
-library(ggplot2)
-library(ggstance)
-library(ggalt)
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
 ```
 
-``` {r, eval =F}
+``` {r eval = F}
 install.packages("devtools")
 install.packages("flexdashboard")
 install.packages("lubridate")
@@ -30,13 +26,25 @@ devtools::install_github("lionel-/ggstance")
 install.packages("ggalt")
 ```
 
+```{r message = F}
+library(flexdashboard)
+library(lubridate)
+library(dplyr)
+library(ggplot2)
+library(ggstance)
+library(ggalt)
+```
+
 ## Introduction
 
-- Link to Article: https://www.r-bloggers.com/fatal-police-shootings-across-the-u-s/
-- Link to Data: https://github.com/washingtonpost/data-police-shootings
-- Link to the Visualization: https://gist.github.com/juliasilge/9acbe97c549502bac85404779edceba0
+For this lab, we took a look at the use of deadly force by police officers in the United States. This analysis is based on the work of Julia Silge of "data flex-dashboard". 
 
-The data we imported is a compilition of every fatal shooting in the United States by a police officer in the line of duty from a database organized by the Washington Post since Jan. 1, 2015.
+- Link to Article: <https://www.r-bloggers.com/fatal-police-shootings-across-the-u-s/>
+- Link to Data: <https://github.com/washingtonpost/data-police-shootings>
+- Link to the Dashboard Visualization: <https://gist.github.com/juliasilge/9acbe97c549502bac85404779edceba0>
+- Link to the Washington Post Visualization <https://www.washingtonpost.com/graphics/national/police-shootings/>
+
+The data we imported is a compilation of every fatal shooting in the United States by a police officer in the line of duty from a database organized by the Washington Post since Jan. 1, 2015.
 
 Since 2015, The Washington Post has recorded dozens of details about each killing:
 
@@ -52,12 +60,12 @@ Since 2015, The Washington Post has recorded dozens of details about each killin
 - **state**: location of state
 - **threat level**: the circumstances of the shooting
 - **signs_of_mental_illness**: whether the victim was experiencing a mental-health crisis 
-- **flee**: were they running away by Foot, Not Fleeing, Car
-- **body_camera**: was the victim 's body recorded by a camera
+- **flee**: were they running away by Foot, Not Fleeing, Car, Other
+- **body_camera**: was the victim recorded by a body camera
 
-In 2016, The Washington post went to gatheradditional information about each fatal shooting that occurred during this year. There were reports, websites, and social media that have been monitoring independent databases about fatal police shootings. More than a dozen additional details were collected about the officers in each shooting. 
+In 2016, The Washington post went to gather additional information about each fatal shooting that occurred during this year. There were reports, websites, and social media that have been monitoring independent databases about fatal police shootings. More than a dozen additional details were collected about the officers in each shooting. 
 
-We want to look at the data and make an in-depth analysis on the different demographic, date, location, and circumstance of death within Fatal Shootings.
+We want to look at the data and make an in-depth analysis on the different demographic, date, location, and circumstance of death within Fatal Police Shootings Data.
 
 ## Analysis
 
@@ -75,7 +83,11 @@ levels(fatalshootings$manner_of_death) <- c("Beaten", "Shot", "Shot/Tasered")
 fatalshootings$manner_of_death <- factor(fatalshootings$manner_of_death, levels(fatalshootings$manner_of_death)[c(1,3,2)])
 ```
 
-### Race/Ethnicity
+Once we have our clean data, we are ready to start creating interesting visualizations using ggplot.
+
+### Demographic Analysis
+
+##### Deaths by Race/Ethnicity
 ```{r}
 ggplot(data = fatalshootings, aes(y = race)) + 
         geom_barh(aes(fill = ..count..)) +
@@ -85,9 +97,58 @@ ggplot(data = fatalshootings, aes(y = race)) +
         scale_fill_gradient(low = "royalblue3", high = "navyblue") +
         labs(y = NULL, x = "Number of deaths")
 ```
-This is a simple graph yet you can interpret alot in terms of data. Instead of the typical vertical graph the original creator decided to make it horizontal. They also set a darker gradient for large numbers of Fatal Shootings. Overall, good use of whitespace and direction. One can clearly tell which ethinicity suffers the most. My only question is what categorizes the unknown.
 
-### Dates Overall 
+> This is a simple graph yet you can scrutinize a lot information from it. Instead of the typical vertical graph the original creator Julia decided to make the graph horizontal. Based on the number of Fatal Shootings she also implemented a lighter-to-darker gradient transition. Overall, she makes good use of whitespace and direction. The same goes with ink to data ratio. The most important feature is that one can clearly tell which ethinicity suffers the most from fatal police shootings. Our only question is what categorizes the unknown.
+
+##### Deaths by Gender
+```{r}
+ggplot(data = fatalshootings, aes(y = gender)) + 
+        geom_barh(aes(fill = ..count..)) +
+        theme_minimal(base_size = 13) +
+        theme(legend.position = "none") +
+        scale_x_continuous(expand=c(0,0)) +
+        scale_fill_gradient(low = "royalblue3", high = "navyblue") +
+        labs(y = NULL, x = "Number of deaths")
+```
+
+> Clearly, male victims fall into the greater number of fatal police shootings.
+
+##### Deaths by Age
+```{r warning = F}
+ggplot(data = fatalshootings, aes(x = age)) + 
+        geom_histogram(aes(fill = ..count..), bins = 20) +
+        theme_minimal(base_size = 13) +
+        theme(legend.position = "none") +
+        scale_x_continuous(expand=c(0,0)) +
+        scale_fill_gradient(low = "royalblue3", high = "navyblue") +
+        labs(x = "Age at death", y = "Number of deaths")
+```
+
+> It forms a skewed-right distribution. The deaths seem to be the greatest at the age of 30. We are also glad that children are not usually involved wth fatal shootings. Creator uses consistent themes and a clear number of bins for her ggplot.
+
+#####Deaths based on mental illness
+```{r}
+ggplot(data = fatalshootings, aes(y = signs_of_mental_illness)) + 
+        geom_barh(aes(fill = ..count..)) +
+        theme_minimal(base_size = 13) +
+        theme(legend.position = "none") +
+        scale_x_continuous(expand=c(0,0)) +
+        scale_fill_gradient(low = "royalblue3", high = "navyblue") +
+        labs(y = NULL, x = "Number of deaths")
+```
+
+```{r}
+# I would add the percentages or proportions onto the graph
+summary(fatalshootings$signs_of_mental_illness)
+(420/1698)
+```
+
+> A significant proportion of death is based on mental illness. Could there be some bias in the data collection? What considers to be a mental illness? 
+
+### Date of Shootings
+
+##### Overall
+
 ```{r}
 ggplot(data = fatalshootings, aes(x = date)) + 
         geom_histogram(aes(fill = ..count..), bins = 25) +
@@ -96,18 +157,45 @@ ggplot(data = fatalshootings, aes(x = date)) +
         scale_fill_gradient(low = "royalblue3", high = "navyblue") +
         labs(x = NULL, y = "Number of deaths")
 ```
-When creating the flexboard, it's good that there is a consistant theme. The creator continues the trend of darker gradient for large numbers. Also I think it was a good call to minimize it to only 25 bins.
+
+##### Deaths by Month
+```{r}
+ggplot(data = fatalshootings, aes(x = month(date, label = TRUE))) + 
+        geom_bar(aes(fill = ..count..)) +
+        theme_minimal() +
+        theme(legend.position = "none") +
+        scale_y_continuous(expand=c(0,0)) +
+        scale_fill_gradient(low = "royalblue3", high = "navyblue") +
+        labs(x = NULL, y = "Number of deaths")
+```
+
+##### Deaths by Day of Week
+```{r}
+ggplot(data = fatalshootings, aes(x = wday(date, label = TRUE))) + 
+        geom_bar(aes(fill = ..count..)) +
+        theme_minimal() +
+        theme(legend.position = "none") +
+        scale_y_continuous(expand=c(0,0)) +
+        scale_fill_gradient(low = "royalblue3", high = "navyblue") +
+        labs(x = NULL, y = "Number of deaths")
+```
+
+> They're the same graph, but different labels and count for the dates. When creating the flexboard, it's good that there is a consistent theme. The creator continues the trend of lighter-to-darker gradient. I also think it was a good call to minimize it to the appropriate number of bins.
 
 
 ### Top 15 States For Fatal Police Shootings
-```{r}
+
+### Location Breakdown
+
+##### Deaths by State
+```{r message = F}
 stateinfo <- fatalshootings %>% group_by(state) %>% summarise(n = n()) %>% 
         arrange(desc(n)) %>% top_n(15) %>% 
         mutate(state = factor(state, levels = rev(unique(state))))
 ggplot(stateinfo, aes(x = n, y = state)) +
         geom_barh(stat="identity", aes(fill = n)) +
         #geom_stateface(aes(y=state, x=7, label=as.character(state)), colour="white", size=8) +
-        geom_text(aes(x = 17, y = state, label=as.character(state)), color="white", size=5) +
+        geom_text(aes(x = 17, y = state, label=as.character(state)), color="white", size=4) +
         labs(y = NULL, x = "Number of deaths") +
         scale_fill_gradient(low = "royalblue3", high = "navyblue") +
         theme_minimal(base_size = 13) +
@@ -115,10 +203,13 @@ ggplot(stateinfo, aes(x = n, y = state)) +
         theme(legend.position = "none") +
         scale_x_continuous(expand=c(0,0))
 ```
-This graph is a little bit more complicated than the rest. The creator focuses on seperating the top 15 states and finding the distinct variables. Then the creator maps it to the barplot. Original there were
+
+> This graph is a little bit more complicated than the rest. The creator focuses on seperating the top 15 states when finding the distinct variables. Then the creator maps it to the barplot. Original there were state icons, but we couldn't find the 'geom_stateface' asset. 
 
 ### Was The Person Killed Armed
-```{r}
+
+##### Was the victim armed?
+```{r message = F}
 armedinfo <- fatalshootings %>% group_by(armed) %>% summarise(n = n()) %>% 
         arrange(desc(n)) %>% top_n(10) %>% 
         mutate(armed = factor(armed, levels = rev(unique(armed))))
@@ -132,38 +223,96 @@ ggplot(data = armedinfo, aes(x = n, y = armed)) +
         labs(y = NULL, x = "Number of deaths")
 ```
 
+> There are a great number of unusually recored weapons. It makes sense that most fatal shootings would occur with the victim holding out a gun. 
 
-## Follow-Up / Data Visualization
+### Circumstances of Death
+
+##### Was the officer wearing a body camera?
+```{r}
+ggplot(data = fatalshootings, aes(y = body_camera)) + 
+        geom_barh(aes(fill = ..count..)) +
+        theme_minimal(base_size = 13) +
+        theme(legend.position = "none") +
+        scale_x_continuous(expand=c(0,0)) +
+        scale_fill_gradient(low = "royalblue3", high = "navyblue") +
+        labs(y = NULL, x = "Number of deaths")
+```
+
+> There should be more officers wearing a body camera.
+
+##### Was the victim fleeing?
+```{r}
+ggplot(data = fatalshootings, aes(y = flee)) + 
+        geom_barh(aes(fill = ..count..)) +
+        theme_minimal(base_size = 13) +
+        theme(legend.position = "none") +
+        scale_x_continuous(expand=c(0,0)) +
+        scale_fill_gradient(low = "royalblue3", high = "navyblue") +
+        labs(y = NULL, x = "Number of deaths")
+```
+
+> Great visualization that shows the amount of victims not flee. Again, how do you 'categorize' unknown and still leave 'other'.
+
+##### How was the person killed?
+```{r}
+ggplot(data = fatalshootings, aes(y = manner_of_death)) + 
+        geom_barh(aes(fill = ..count..)) +
+        theme_minimal(base_size = 13) +
+        theme(legend.position = "none") +
+        scale_x_continuous(expand=c(0,0)) +
+        scale_fill_gradient(low = "royalblue3", high = "navyblue") +
+        labs(y = NULL, x = "Number of deaths")
+```
+
+> This was not my expected number or circumstance of how the victim was killed.
+
+## Follow-Up / Visualization
 
 Our twist on the fatal police shootings data.
 
 Import the csv file.
 ```{r}
-fatal_data = read.csv("fatal-police-shootings-data.csv")
+fatalshootings = read.csv("fatal-police-shootings-data.csv")
 ```
 
 Simple analysis without making graphical models (throw it into a simple barplot if you do want to make a graphical model)
 ```{r}
-table(data$armed)
-table(data$manner_of_death)
-table(data$age)
-table(data$gender)
-table(data$race)
-table(data$state)
-table(data$signs_of_mental_illness)
-table(data$threat_level)
-table(data$flee)
-table(data$body_camera)
+table(fatalshootings$armed)
+table(fatalshootings$manner_of_death)
+table(fatalshootings$age)
+table(fatalshootings$gender)
+table(fatalshootings$race)
+table(fatalshootings$state)
+table(fatalshootings$signs_of_mental_illness)
+table(fatalshootings$threat_level)
+table(fatalshootings$flee)
+table(fatalshootings$body_camera)
 ```
 
-Data Visualization.
-```{r}
+### Data Visualization.
 
+Creating a count for fatalshootings per day
+
+```{r}
+deathsperday = fatalshootings %>%
+  group_by(date) %>%
+  mutate(count = n())
+```
+
+
+#### Random Linear Model of Upcoming Fatal Police Shootings (this is such a bad graph, we are not using this)
+
+```{r}
+ggplot(data = deathsperday, aes(x = date, y = count)) + 
+  geom_line(aes(colour = count)) +
+   stat_smooth(method = "lm", col = "red") +
+  scale_colour_gradient2(low = "blue", mid = "green" , high = "red", midpoint = 4) +
+        labs(x = NULL, y = "Number of deaths")
 ```
 
 
 ## Conclusion
 
-- We could've definitely looked into using other varibles for supporting our Data Analysis.
+- We could've definitely looked into using other variables for supporting our Data Analysis.
+- There could have been issues or bias with the data provided. However all those are caveats for the importance of data collection and analysis.
 - If we had time, the stretch goal was to create a graphical map visualization or an interactive visualization where people can hover over the data.
-
