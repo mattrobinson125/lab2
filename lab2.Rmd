@@ -87,7 +87,7 @@ Once we have our clean data, we are ready to start creating interesting visualiz
 
 ### Demographic Analysis
 
-##### Deaths by Race/Ethnicity
+#### Deaths by Race/Ethnicity
 ```{r}
 ggplot(data = fatalshootings, aes(y = race)) + 
         geom_barh(aes(fill = ..count..)) +
@@ -100,7 +100,7 @@ ggplot(data = fatalshootings, aes(y = race)) +
 
 > This is a simple graph yet you can scrutinize a lot information from it. Instead of the typical vertical graph the original creator Julia decided to make the graph horizontal. Based on the number of Fatal Shootings she also implemented a lighter-to-darker gradient transition. Overall, she makes good use of whitespace and direction. The same goes with ink to data ratio. The most important feature is that one can clearly tell which ethinicity suffers the most from fatal police shootings. Our only question is what categorizes the unknown.
 
-##### Deaths by Gender
+#### Deaths by Gender
 ```{r}
 ggplot(data = fatalshootings, aes(y = gender)) + 
         geom_barh(aes(fill = ..count..)) +
@@ -113,7 +113,7 @@ ggplot(data = fatalshootings, aes(y = gender)) +
 
 > Clearly, male victims fall into the greater number of fatal police shootings.
 
-##### Deaths by Age
+#### Deaths by Age
 ```{r warning = F}
 ggplot(data = fatalshootings, aes(x = age)) + 
         geom_histogram(aes(fill = ..count..), bins = 20) +
@@ -126,7 +126,7 @@ ggplot(data = fatalshootings, aes(x = age)) +
 
 > It forms a skewed-right distribution. The deaths seem to be the greatest at the age of 30. We are also glad that children are not usually involved wth fatal shootings. Creator uses consistent themes and a clear number of bins for her ggplot.
 
-#####Deaths based on mental illness
+####Deaths based on mental illness
 ```{r}
 ggplot(data = fatalshootings, aes(y = signs_of_mental_illness)) + 
         geom_barh(aes(fill = ..count..)) +
@@ -147,7 +147,7 @@ summary(fatalshootings$signs_of_mental_illness)
 
 ### Date of Shootings
 
-##### Overall
+#### Overall
 
 ```{r}
 ggplot(data = fatalshootings, aes(x = date)) + 
@@ -158,7 +158,7 @@ ggplot(data = fatalshootings, aes(x = date)) +
         labs(x = NULL, y = "Number of deaths")
 ```
 
-##### Deaths by Month
+#### Deaths by Month
 ```{r}
 ggplot(data = fatalshootings, aes(x = month(date, label = TRUE))) + 
         geom_bar(aes(fill = ..count..)) +
@@ -169,7 +169,7 @@ ggplot(data = fatalshootings, aes(x = month(date, label = TRUE))) +
         labs(x = NULL, y = "Number of deaths")
 ```
 
-##### Deaths by Day of Week
+#### Deaths by Day of Week
 ```{r}
 ggplot(data = fatalshootings, aes(x = wday(date, label = TRUE))) + 
         geom_bar(aes(fill = ..count..)) +
@@ -187,7 +187,7 @@ ggplot(data = fatalshootings, aes(x = wday(date, label = TRUE))) +
 
 ### Location Breakdown
 
-##### Deaths by State
+#### Deaths by State
 ```{r message = F}
 stateinfo <- fatalshootings %>% group_by(state) %>% summarise(n = n()) %>% 
         arrange(desc(n)) %>% top_n(15) %>% 
@@ -208,7 +208,7 @@ ggplot(stateinfo, aes(x = n, y = state)) +
 
 ### Was The Person Killed Armed
 
-##### Was the victim armed?
+#### Was the victim armed?
 ```{r message = F}
 armedinfo <- fatalshootings %>% group_by(armed) %>% summarise(n = n()) %>% 
         arrange(desc(n)) %>% top_n(10) %>% 
@@ -223,11 +223,11 @@ ggplot(data = armedinfo, aes(x = n, y = armed)) +
         labs(y = NULL, x = "Number of deaths")
 ```
 
-> There are a great number of unusually recored weapons. It makes sense that most fatal shootings would occur with the victim holding out a gun. 
+> There was a great number of unusually recored weapons. It makes sense that most fatal shootings would occur with the victim holding out a gun. 
 
 ### Circumstances of Death
 
-##### Was the officer wearing a body camera?
+#### Was the officer wearing a body camera?
 ```{r}
 ggplot(data = fatalshootings, aes(y = body_camera)) + 
         geom_barh(aes(fill = ..count..)) +
@@ -238,9 +238,9 @@ ggplot(data = fatalshootings, aes(y = body_camera)) +
         labs(y = NULL, x = "Number of deaths")
 ```
 
-> There should be more officers wearing a body camera.
+> There should be more officers wearing a body camera. 
 
-##### Was the victim fleeing?
+#### Was the victim fleeing?
 ```{r}
 ggplot(data = fatalshootings, aes(y = flee)) + 
         geom_barh(aes(fill = ..count..)) +
@@ -251,9 +251,9 @@ ggplot(data = fatalshootings, aes(y = flee)) +
         labs(y = NULL, x = "Number of deaths")
 ```
 
-> Great visualization that shows the amount of victims not flee. Again, how do you 'categorize' unknown and still leave 'other'.
+> Great visualization that shows the amount of victims fleeing or not fleeing. Again, how do you 'categorize' unknown and still have 'other'.
 
-##### How was the person killed?
+#### How was the person killed?
 ```{r}
 ggplot(data = fatalshootings, aes(y = manner_of_death)) + 
         geom_barh(aes(fill = ..count..)) +
@@ -264,9 +264,37 @@ ggplot(data = fatalshootings, aes(y = manner_of_death)) +
         labs(y = NULL, x = "Number of deaths")
 ```
 
-> This was not my expected number or circumstance of how the victim was killed.
 
-## Follow-Up / Visualization
+> We did not expect that most victims were beaten to death rather than shot to death.
+
+### Follow Up
+
+To enhance the article, we added some more detail to the location graph to have the data represent death per 1 million residents. The population data was retrieved from the United States Census Bureau here <https://www.census.gov/popest/data/datasets.html>. We do some importing, then merge data to perform the calculation, and then plot the new variable, dPerCapita. As you can see, California proportionally does not have the most deaths, but rather New Mexico. Also, Wyoming and Arkansas, who were not in the original visualization are second and third in deaths per million.
+
+#### Death per Capita Breakdown
+```{r message=FALSE}
+stateinfo <- fatalshootings %>% group_by(state) %>% summarise(n = n()) %>% 
+  arrange(desc(n)) %>% 
+  mutate(state = factor(state, levels = rev(unique(state))))
+
+census <- read.csv('./NST-EST2015-alldata.csv', stringsAsFactors = FALSE)
+census <- transform(census, state = state.abb[match(census$NAME,state.name)])
+stateinfo <- merge(stateinfo,census,by="state")
+stateinfo$dPerCap <- stateinfo$n / (stateinfo$POPESTIMATE2015 / 1000000)
+stateinfo <- stateinfo %>% arrange(desc(dPerCap)) %>% top_n(15) 
+
+ggplot(stateinfo, aes(x = dPerCap, y = state)) +
+  geom_barh(stat="identity", aes(fill = dPerCap)) +
+  geom_text(aes(x = 20, y = state, label=as.character(state)), color="white", size=4) +
+  labs(y = NULL, x = "Number of deaths per 1M people") +
+  scale_fill_gradient(low = "royalblue3", high = "navyblue") +
+  theme_minimal(base_size = 13) +
+  theme(legend.position = "none") +
+  scale_x_continuous(expand=c(0,0))
+
+```
+
+## Follow-Up (Vincent)
 
 Our twist on the fatal police shootings data.
 
@@ -300,7 +328,7 @@ deathsperday = fatalshootings %>%
 ```
 
 
-#### Random Linear Model of Upcoming Fatal Police Shootings (this is such a bad graph, we are not using this)
+#### Random Linear Model of Fatal Police Shootings Per Day (this is such a bad graph, we are not using this)
 
 ```{r}
 ggplot(data = deathsperday, aes(x = date, y = count)) + 
@@ -313,6 +341,6 @@ ggplot(data = deathsperday, aes(x = date, y = count)) +
 
 ## Conclusion
 
-- We could've definitely looked into using other variables for supporting our Data Analysis.
+- We could've definitely looked into using other variables for supporting our Data Analysis. 
 - There could have been issues or bias with the data provided. However all those are caveats for the importance of data collection and analysis.
-- If we had time, the stretch goal was to create a graphical map visualization or an interactive visualization where people can hover over the data.
+- If we had time, the stretch goal was to create a graphical map visualization or an interactive visualization where people can hover over and see the data.
