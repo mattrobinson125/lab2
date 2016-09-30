@@ -341,43 +341,6 @@ table(fatalshootings$flee)
 table(fatalshootings$body_camera)
 ```
 
-Creating a count for fatal shootings per day (not needed)
-```{r}
-deathsperday = fatalshootings %>%
-  group_by(date) %>%
-  mutate(count = n())
-```
-
-Here is another twist on the fatal police shootings data. 
-
-Selecting the data that only occurred in 2015
-```{r}
-year2015 = fatalshootings %>% slice(1:990)
-```
-
-
-```{r}
-armedinfo <- fatalshootings %>% group_by(armed) %>% summarise(n = n()) %>% 
-        arrange(desc(n)) %>% top_n(10) %>% 
-        mutate(armed = factor(armed, levels = rev(unique(armed))))
-  
-ageinfo <- fatalshootings %>% group_by(age) %>% summarise(n = n()) %>% 
-        arrange(desc(n)) %>% top_n(10) %>%   
-        mutate(age = factor(age, levels = rev(unique(age))))
-
-armedage = bind_cols(armedinfo, ageinfo)
-```
-
-
-```{r}
-ggplot(data = ageinfo, aes(x = n, y = age)) + 
-        geom_bar(stat="identity", aes(fill = n)) +
-        theme_minimal(base_size = 13) +
-        scale_x_continuous(expand=c(0,0)) +
-        scale_fill_gradient(low = "royalblue3", high = "navyblue") 
-```
-
-
 ## Conclusion
 
 ```
