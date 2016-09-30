@@ -64,7 +64,7 @@ The data we imported is a compilation of every fatal shooting in the United Stat
 - **flee**: were they running away by Foot, Not Fleeing, Car, Other
 - **body_camera**: was the victim recorded by a body camera
 
-In 2016, The Washington post went to gather additional information about each fatal shooting that occurred during this year. There were reports, websites, and social media that have been constantly monitoring independent databases about fatal police shootings. More than a dozen additional details were collected about the officers and victims in each individual shooting. As of right now, there is continuous live web tracking to recording the number of Fatal Police Shootings in 2016.
+In 2016, The Washington post went to gather additional information about each fatal shooting that occurred during this year. There were reports, websites, and social media that have been constantly monitoring independent databases about fatal police shootings. More than a dozen additional details were collected about the officers and victims in each individual shooting. As of right now, there is a continuous live web tracking service that records the number of Fatal Police Shootings in 2016.
 
 In this lab assignment, we want to look at the data set to make an in-depth analysis on the different demographic, date, location, and circumstances of death within Fatal Police Shootings Data.
 
@@ -102,7 +102,7 @@ ggplot(data = fatalshootings, aes(y = race)) +
 ```
 
 ```
-This is a simple graph yet you can still scrutinize a immense amount information from it. Instead of the typical vertical graph the original creator Julia decided to make the graph horizontal. Based on the number of Fatal Shootings she also implemented a lighter-to-darker gradient transition. Overall, she makes good use of whitespace and direction. The same goes with ink to data ratio. The most important feature is that one can clearly tell which ethinicity suffers the most from fatal police shootings. Our only question is what categorizes the unknown.
+This is a simple graph yet you can still scrutinize a immense amount information from it. Instead of the typical vertical graph the original creator Julia decided to make the graph horizontal. Based on the number of Fatal Shootings she also implemented a lighter-to-darker gradient transition. Overall, she makes good use of whitespace and direction. The same goes with ink to data ratio. The most important feature is that one can clearly tell which ethinicity suffers the most from fatal police shootings. Our only question is what categorizes the 'unknown'.
 ```
 
 #### Deaths by Gender
@@ -117,7 +117,7 @@ ggplot(data = fatalshootings, aes(y = gender)) +
 ```
 
 ```
-Clearly, male victims fall into the greater number of fatal police shootings. Further investigation is needed since the male ratio deaths are overwhelmingly higher than the females.
+Clearly, male victims fall into the greater number of fatal police shootings. Further investigation is needed since the male ratio deaths are overwhelmingly higher than the females. Why are males approached with more violence and deaths than females?
 ```
 
 #### Deaths by Age
@@ -132,7 +132,7 @@ ggplot(data = fatalshootings, aes(x = age)) +
 ```
 
 ```
-The histogram forms a skewed-right distribution. The average number of deaths seem to be the greatest around the age of 30. We are also glad that children are not usually involved wth fatal shootings. Overall, the creator applies good data visualization by using consistent themes and having a clear number of bins for her ggplots.
+The histogram forms a skewed-right distribution. The average number of deaths seem to be the greatest around the age of 30. We are also glad that children are not usually involved with fatal shootings. Overall, the creator applies good data visualization by using consistent themes and having a clear number of bins for her ggplots.
 ```
 
 ####Deaths based on mental illness
@@ -223,7 +223,7 @@ ggplot(stateinfo, aes(x = n, y = state)) +
 ```
 
 ```
-This graph is a little bit more complicated than the rest. Julie focuses on seperating the top 15 states when finding the unique number of variables. She creates a state column and then maps it to the barplot. She creates the size and identifies the top 15 Deaths by State. Originally there were state icons, but we couldn't find the 'geom_stateface' asset. 
+This graph is a little bit more complicated than the rest. Julie focuses on seperating the top 15 states when finding the unique number of variables. She creates a state column and then maps it to the barplot. She creates the size and identifies the top 15 States for total death. Originally there were state icons, but we couldn't find the 'geom_stateface' asset. 
 ```
 
 *****
@@ -246,7 +246,7 @@ ggplot(data = armedinfo, aes(x = n, y = armed)) +
 ```
 
 ```
-There were a great number of unusually recored weapons. It makes sense that the data describes most fatal shootings would occur when victim holding out a gun. However, it does not make sense when they are completely unarmed.
+There were a great number of unusually recored weapons. It makes sense that the data describes most fatal shootings would occur when victim holding out a gun. However, it does not make sense that there is still a moderately high ratio of deaths for victims who are completely unarmed.
 ```
 
 *****
@@ -265,7 +265,7 @@ ggplot(data = fatalshootings, aes(y = body_camera)) +
 ```
 
 ```
-There should be more officers wearing a body camera. Somehow I believe there were faulty reports and censored data collection when asked if there were a body camera on the approaching officer after shooting a victim to death.
+There should be more officers wearing a body camera. Somehow I believe there could have been faulty reports or censorship within the data collection. I can imagine officers or reporters hidding the facts when approached if asked whether or not there was a body camera that happen to record the entire event of the officer shooting a victim to death.
 ```
 
 #### Was the victim fleeing?
@@ -280,7 +280,7 @@ ggplot(data = fatalshootings, aes(y = flee)) +
 ```
 
 ```
-Great visualization that shows the amount of victims fleeing or not fleeing. Again, how do you 'categorize' unknown and still have 'other'.
+Great visualization that shows the amount of victims fleeing or not fleeing during the scene. Again, how do you 'categorize' unknown column if we also have a column called 'other'.
 ```
 
 #### How was the person killed?
@@ -327,14 +327,7 @@ ggplot(stateinfo, aes(x = dPerCap, y = state)) +
 
 ```
 
-Another twist on the fatal police shootings data.
-
-Import the csv file.
-```{r}
-fatalshootings = read.csv("fatal-police-shootings-data.csv")
-```
-
-Simple analysis without making graphical models 
+Simple analysis without making graphical models or bar charts. 
 ```{r}
 table(fatalshootings$armed)
 table(fatalshootings$manner_of_death)
@@ -348,32 +341,49 @@ table(fatalshootings$flee)
 table(fatalshootings$body_camera)
 ```
 
-### Data Visualization.
-
-Creating a count for fatal shootings per day
-
+Creating a count for fatal shootings per day (not needed)
 ```{r}
 deathsperday = fatalshootings %>%
   group_by(date) %>%
   mutate(count = n())
 ```
 
+Here is another twist on the fatal police shootings data. 
 
-#### Random Linear Model of Fatal Police Shootings Per Day 
+Selecting the data that only occurred in 2015
 ```{r}
-ggplot(data = deathsperday, aes(x = date, y = count)) + 
-  geom_line(aes(colour = count)) +
-   stat_smooth(method = "lm", col = "red") +
-  scale_colour_gradient2(low = "blue", mid = "green" , high = "red", midpoint = 4) +
-        labs(x = NULL, y = "Number of deaths")
+year2015 = fatalshootings %>% slice(1:990)
+```
+
+
+```{r}
+armedinfo <- fatalshootings %>% group_by(armed) %>% summarise(n = n()) %>% 
+        arrange(desc(n)) %>% top_n(10) %>% 
+        mutate(armed = factor(armed, levels = rev(unique(armed))))
+  
+ageinfo <- fatalshootings %>% group_by(age) %>% summarise(n = n()) %>% 
+        arrange(desc(n)) %>% top_n(10) %>%   
+        mutate(age = factor(age, levels = rev(unique(age))))
+
+armedage = bind_cols(armedinfo, ageinfo)
+```
+
+
+```{r}
+ggplot(data = ageinfo, aes(x = n, y = age)) + 
+        geom_bar(stat="identity", aes(fill = n)) +
+        theme_minimal(base_size = 13) +
+        scale_x_continuous(expand=c(0,0)) +
+        scale_fill_gradient(low = "royalblue3", high = "navyblue") 
 ```
 
 
 ## Conclusion
 
 ```
+- One of the lessons that we learned early on was that proper data wrangling made it easier to proceed with our Data Visualization 
+- We could've used the opportunity to reorder Julie's graphs in order to interpret some other underlying  information that we may have missed in our original analysis
 - We could've definitely looked into using other variables for supporting our Data Analysis. 
 - There could have been issues or bias with the data provided. However outliers and misinformation are caveats for the importance of proper data collection and analysis.
-- If we had time, the stretch goal was to create a graphical map visualization or an interactive visualization where people can hover over and see the data.
-- There was the opportunity to reorder Julie's graph in order to interpret some other underlying  information
+- If we had time, the stretch goal was to create a graphical map visualization or an interactive visualization where people can hover over and see the data (choroplethr or googleVis).
 ```
